@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Eid Outfit Request",
-  description: "Will you show me your Eid outfit, Fatouma?",
+  title: "Eid Mubarak - Fatouma's Special Request",
+  description: "A beautiful Eid celebration invitation to share your festive outfit with loved ones.",
 };
 
 export default function RootLayout({
