@@ -1,102 +1,142 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Heart, CheckCircle, X } from 'lucide-react';
+import { useState } from "react";
+import { Heart, Loader2, MailCheck, Sparkles } from "lucide-react";
+import Background from "@/components/Background";
+
+const BURST_HEARTS = Array.from({ length: 10 }, (_, i) => {
+  const angle = (i / 10) * Math.PI * 2;
+  return {
+    tx: `${Math.cos(angle) * (70 + (i % 3) * 30)}px`,
+    ty: `${Math.sin(angle) * (70 + (i % 3) * 30)}px`,
+    size: 14 + (i % 4) * 5,
+  };
+});
 
 export default function Home() {
-  const [yesPressed, setYesPressed] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [noPosition, setNoPosition] = useState({ x: 0, y: 0 });
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [pressCount, setPressCount] = useState(0);
+  const [sentAt, setSentAt] = useState<Date | null>(null);
+  const [saveFailed, setSaveFailed] = useState(false);
 
-  const handleNoHover = () => {
-    const escapeDistance = typeof window !== 'undefined' 
-      ? window.innerWidth < 640 ? 400 : 300
-      : 300;
-    const randomX = (Math.random() - 0.5) * escapeDistance;
-    const randomY = (Math.random() - 0.5) * escapeDistance;
-    setNoPosition({ x: randomX, y: randomY });
-  };
+  const handlePress = async () => {
+    if (status === "sending") return;
+    setStatus("sending");
+    setSaveFailed(false);
 
-  const handleYesClick = () => {
-    setYesPressed(true);
-    setShowAlert(true);
+    try {
+      const res = await fetch("/api/miss-you", { method: "POST" });
+      if (!res.ok) setSaveFailed(true);
+    } catch {
+      setSaveFailed(true);
+    }
+
+    setSentAt(new Date());
+    setPressCount((c) => c + 1);
+    setStatus("sent");
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 p-4">
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-          Eid Mubarak! 🕌
-        </h1>
+    <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4 py-10 sm:px-6">
+      <Background />
+
+      <div className="glass fade-up relative z-10 w-full max-w-lg rounded-3xl p-8 text-center sm:p-12">
+        {status !== "sent" ? (
+          <>
+            <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-rose-500/15 ring-1 ring-rose-400/30">
+              <Heart
+                size={38}
+                className="heartbeat text-rose-400"
+                fill="currentColor"
+                strokeWidth={0}
+              />
+            </div>
+
+            <p className="mb-3 text-sm font-medium uppercase tracking-[0.3em] text-rose-300/80">
+              For Fatouma
+            </p>
+
+            <h1 className="font-display mb-6 text-4xl font-semibold leading-tight text-rose-50 sm:text-5xl">
+              I miss you.
+            </h1>
+
+            <p className="mx-auto mb-10 max-w-sm text-base leading-relaxed text-rose-100/70 sm:text-lg">
+              Every day feels a little longer without you. I made this small
+              corner of the internet just to tell you that.
+            </p>
+
+            <button
+              onClick={handlePress}
+              disabled={status === "sending"}
+              className="group relative inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-rose-900/40 transition-all hover:scale-[1.03] hover:shadow-rose-800/50 active:scale-[0.98] disabled:opacity-70 sm:w-auto"
+            >
+              {status === "sending" ? (
+                <Loader2 size={22} className="animate-spin" />
+              ) : (
+                <Heart
+                  size={22}
+                  className="transition-transform group-hover:scale-110"
+                  fill="currentColor"
+                  strokeWidth={0}
+                />
+              )}
+              I miss you too
+            </button>
+          </>
+        ) : (
+          <div className="relative">
+            {BURST_HEARTS.map((h, i) => (
+              <span
+                key={`${pressCount}-${i}`}
+                className="burst-heart text-rose-400"
+                style={{
+                  ["--tx" as string]: h.tx,
+                  ["--ty" as string]: h.ty,
+                }}
+              >
+                <Heart size={h.size} fill="currentColor" strokeWidth={0} />
+              </span>
+            ))}
+
+            <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-rose-500/15 ring-1 ring-rose-400/30">
+              <MailCheck size={36} className="text-rose-300" />
+            </div>
+
+            <h2 className="font-display mb-4 text-3xl font-semibold text-rose-50 sm:text-4xl">
+              He&apos;ll know 💌
+            </h2>
+
+            <p className="mx-auto mb-2 max-w-sm text-base leading-relaxed text-rose-100/70 sm:text-lg">
+              Your &ldquo;I miss you too&rdquo; is on its way to him.
+            </p>
+
+            {sentAt && (
+              <p className="mb-8 text-sm text-rose-200/50">
+                Sent{" "}
+                {sentAt.toLocaleString(undefined, {
+                  weekday: "long",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+                {saveFailed && " — but the connection hiccuped, try once more 🥺"}
+              </p>
+            )}
+
+            <button
+              onClick={handlePress}
+              disabled={status !== "sent"}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-rose-300/30 bg-white/5 px-6 py-3 text-base font-medium text-rose-100 transition-all hover:bg-white/10 active:scale-[0.98]"
+            >
+              <Sparkles size={18} className="text-rose-300" />
+              Tell him again
+            </button>
+          </div>
+        )}
       </div>
 
-      {showAlert && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full">
-            <button
-              onClick={() => setShowAlert(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              <X size={24} />
-            </button>
-            <div className="text-center">
-              <CheckCircle size={48} className="text-pink-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Thank You, Fatouma!
-              </h2>
-              <p className="text-lg text-gray-600">
-                Happy Eid Mubarak ✨
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!yesPressed ? (
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <Heart size={40} className="text-pink-500 mx-auto mb-6" />
-          
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-6">
-            Will you share
-            <span className="block text-pink-600">your Eid outfit Fatouma?</span>
-          </h1>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={handleYesClick}
-              className="px-8 py-3 bg-pink-500 text-white font-semibold rounded-full hover:bg-pink-600 transition-colors"
-            >
-              Yes! 💖
-            </button>
-            <button
-              onMouseEnter={handleNoHover}
-              className="px-8 py-3 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300 transition-all duration-300"
-              style={{
-                transform: `translate(${noPosition.x}px, ${noPosition.y}px)`,
-                transition: 'transform 0.3s ease-out',
-              }}
-            >
-              Maybe later
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <Heart size={40} className="text-pink-500 mx-auto mb-6" />
-          
-          <h1 className="text-3xl sm:text-4xl font-bold text-pink-600 mb-4">
-            Wonderful! 🎉
-          </h1>
-          
-          <p className="text-lg text-gray-700 mb-4">
-            Thank you for sharing!
-          </p>
-          
-          <p className="text-base text-gray-600">
-            Eid Mubarak, Fatouma! 🕌
-          </p>
-        </div>
-      )}
-    </div>
+      <p className="relative z-10 mt-8 text-center text-xs text-rose-200/40">
+        Made with all my heart, for you.
+      </p>
+    </main>
   );
 }
