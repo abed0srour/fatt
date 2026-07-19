@@ -7,9 +7,52 @@ function detectDevice(userAgent: string): string {
   return "Computer";
 }
 
-// POST /api/miss-you — record a press of the "I miss you too" button
+function getNestEndpoint() {
+  const base = process.env.NEST_API_URL?.replace(/\/$/, "");
+  return base ? `${base}/miss-you` : null;
+}
+
+async function forwardToNest(request: NextRequest, method: "GET" | "POST") {
+  const endpoint = getNestEndpoint();
+  if (!endpoint) return null;
+
+  const response = await fetch(endpoint, {
+    method,
+    cache: "no-store",
+    headers:
+      method === "POST"
+        ? { "user-agent": request.headers.get("user-agent") ?? "" }
+        : undefined,
+  });
+
+  const body = await response.text();
+
+  return new NextResponse(body, {
+    status: response.status,
+    headers: {
+      "content-type": response.headers.get("content-type") ?? "application/json",
+    },
+  });
+}
+
+async function tryForwardToNest(request: NextRequest, method: "GET" | "POST") {
+  try {
+    return await forwardToNest(request, method);
+  } catch (err) {
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      throw err;
+    }
+
+    return null;
+  }
+}
+
+// POST /api/miss-you records a press of the "I miss you too" button.
 export async function POST(request: NextRequest) {
   try {
+    const proxied = await tryForwardToNest(request, "POST");
+    if (proxied) return proxied;
+
     const supabase = getSupabase();
     const userAgent = request.headers.get("user-agent") ?? "";
 
@@ -23,16 +66,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ response: data }, { status: 201 });
+    return NextResponse.json(
+      {
+        message: "Message sent, hope we meet again",
+        response: data,
+      },
+      { status: 201 }
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unexpected error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// GET /api/miss-you — list every recorded press, newest first
-export async function GET() {
+// GET /api/miss-you lists every recorded press, newest first.
+export async function GET(request: NextRequest) {
   try {
+    const proxied = await tryForwardToNest(request, "GET");
+    if (proxied) return proxied;
+
     const supabase = getSupabase();
 
     const { data, error } = await supabase

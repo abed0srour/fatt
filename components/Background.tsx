@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 
 interface FloatingHeart {
@@ -18,34 +15,25 @@ interface Star {
   delay: number;
 }
 
+const HEARTS: FloatingHeart[] = Array.from({ length: 12 }, (_, i) => ({
+  left: (i * 17 + 8) % 96,
+  size: 12 + (i % 5) * 4,
+  duration: 18 + (i % 6) * 3,
+  delay: -1 * (i * 2.4),
+  opacity: 0.12 + (i % 4) * 0.06,
+}));
+
+const STARS: Star[] = Array.from({ length: 38 }, (_, i) => ({
+  left: (i * 29 + 11) % 100,
+  top: (i * 47 + 7) % 100,
+  duration: 2.2 + (i % 5) * 0.7,
+  delay: (i % 8) * 0.35,
+}));
+
 export default function Background() {
-  const [hearts, setHearts] = useState<FloatingHeart[]>([]);
-  const [stars, setStars] = useState<Star[]>([]);
-
-  // Generated after mount so server and client markup match.
-  useEffect(() => {
-    setHearts(
-      Array.from({ length: 14 }, () => ({
-        left: Math.random() * 100,
-        size: 12 + Math.random() * 22,
-        duration: 14 + Math.random() * 16,
-        delay: -Math.random() * 30,
-        opacity: 0.15 + Math.random() * 0.35,
-      }))
-    );
-    setStars(
-      Array.from({ length: 40 }, () => ({
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        duration: 2 + Math.random() * 4,
-        delay: Math.random() * 4,
-      }))
-    );
-  }, []);
-
   return (
     <div aria-hidden>
-      {stars.map((s, i) => (
+      {STARS.map((s, i) => (
         <span
           key={`s-${i}`}
           className="star"
@@ -57,7 +45,7 @@ export default function Background() {
           }}
         />
       ))}
-      {hearts.map((h, i) => (
+      {HEARTS.map((h, i) => (
         <span
           key={`h-${i}`}
           className="floating-heart"
@@ -70,7 +58,7 @@ export default function Background() {
         >
           <Heart
             size={h.size}
-            className="text-rose-400"
+            className="text-rose-300/60"
             fill="currentColor"
             strokeWidth={0}
           />

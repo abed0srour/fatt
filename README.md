@@ -1,40 +1,66 @@
-# I Miss You, Fatouma 💌
+# I Miss You, Fatouma
 
-A little Next.js app with two sides:
+A small Next.js app with a NestJS API, Prisma ORM, and Supabase Postgres storage.
 
-- **`/`** — the page for her: a "I miss you" message with an **"I miss you too"** button. Every press is saved to Supabase with the exact date and time.
-- **`/responses`** — the page for you: a private dashboard showing every time she pressed the button — total count, most recent, first time, and a full timeline with date, time, and the device she used.
+- `/` is the page for her. Pressing **I miss you too** saves the response and shows only: `Message sent, hope we meet again.`
+- `/responses` is the private response dashboard.
+- `server/miss-you/miss-you.controller.ts` is the NestJS controller for sending and listing responses.
+- `prisma/schema.prisma` maps Prisma to the Supabase `miss_you_responses` table.
 
-## Setup
+## 1. Create The Supabase Table
 
-### 1. Create the Supabase table
+In Supabase, open SQL Editor, paste `supabase/schema.sql`, and run it.
 
-In your [Supabase](https://supabase.com) project, open **SQL Editor → New query**, paste the contents of [`supabase/schema.sql`](supabase/schema.sql), and run it.
+## 2. Configure Environment
 
-### 2. Configure environment variables
+Copy `.env.example` to `.env.local` and fill in:
 
-Copy `.env.example` to `.env.local` and fill in the values from **Supabase Dashboard → Project Settings → API**:
-
+```bash
+DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres?sslmode=require"
+NEST_API_URL=http://localhost:4000
+WEB_ORIGIN=http://localhost:3000
+PORT=4000
 ```
+
+For the optional Next/Supabase fallback, also set:
+
+```bash
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-> The service role key is only ever used server-side (in `app/api/miss-you/route.ts`). Never commit `.env.local` — it's already gitignored.
+## 3. Run Locally
 
-When deploying (e.g. Vercel), add the same two variables in the project's environment settings.
-
-### 3. Run it
+Run the Nest API:
 
 ```bash
-npm install
+npm run api:dev
+```
+
+Run the Next frontend in another terminal:
+
+```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) for her page, and [http://localhost:3000/responses](http://localhost:3000/responses) for yours.
+Open `http://localhost:3000`.
 
-## How it works
+## Hosting Notes
 
-- `app/api/miss-you/route.ts` — the controller. `POST` records a press (timestamp + device), `GET` returns all presses newest-first.
-- `lib/supabase.ts` — server-only Supabase client.
-- `supabase/schema.sql` — the `miss_you_responses` table definition.
+Use Supabase for the database, deploy the Nest API to any Node.js host, and deploy the Next frontend to any Node.js-capable Next host.
+
+Backend build/start:
+
+```bash
+npm run api:build
+npm run api:start
+```
+
+Frontend build/start:
+
+```bash
+npm run build
+npm run start
+```
+
+Set `DATABASE_URL`, `WEB_ORIGIN`, and `PORT` on the backend host. Set `NEST_API_URL` on the frontend host to the deployed backend URL.

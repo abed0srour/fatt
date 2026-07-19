@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #160a1e;
-  --foreground: #f7eef5;
-  --rose: #fb7185;
-  --rose-soft: #fda4af;
-  --gold: #fcd9a8;
+  --background: #101014;
+  --foreground: #f6f1ea;
+  --rose: #f06d88;
+  --rose-soft: #f6a3b4;
+  --gold: #e8c47c;
+  --sea: #79c7c4;
 }
 
 @theme inline {
@@ -17,9 +18,9 @@
 
 body {
   background:
-    radial-gradient(1200px 700px at 80% -10%, rgba(190, 24, 93, 0.35), transparent 60%),
-    radial-gradient(900px 600px at 5% 100%, rgba(109, 40, 217, 0.35), transparent 60%),
-    linear-gradient(160deg, #1b0b26 0%, #160a1e 45%, #0f0a1a 100%);
+    linear-gradient(135deg, rgba(121, 199, 196, 0.12), transparent 34%),
+    linear-gradient(205deg, rgba(232, 196, 124, 0.13), transparent 36%),
+    linear-gradient(160deg, #0f1013 0%, #19141d 48%, #101719 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   min-height: 100dvh;
@@ -31,12 +32,12 @@ body {
 
 /* ---- glass card ---- */
 .glass {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: rgba(17, 15, 20, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   box-shadow:
-    0 24px 60px -20px rgba(0, 0, 0, 0.6),
+    0 26px 70px -24px rgba(0, 0, 0, 0.68),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
@@ -76,10 +77,10 @@ body {
 
 .star {
   position: fixed;
-  width: 3px;
-  height: 3px;
+  width: 2px;
+  height: 2px;
   border-radius: 9999px;
-  background: #fff;
+  background: var(--gold);
   animation: twinkle ease-in-out infinite;
   pointer-events: none;
   z-index: 0;

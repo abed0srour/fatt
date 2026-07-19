@@ -11,7 +11,7 @@ let client: SupabaseClient | null = null;
 
 /**
  * Server-only Supabase client. Uses the service role key, so it must never
- * be imported from a client component — only from route handlers.
+ * be imported from a client component. Route handlers only.
  */
 export function getSupabase(): SupabaseClient {
   const url = process.env.SUPABASE_URL;
