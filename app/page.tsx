@@ -1,21 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   CheckCircle2,
   Heart,
+  History,
   Loader2,
+  PenLine,
   Send,
   Sparkles,
   Stars,
 } from "lucide-react";
 import Background from "@/components/Background";
+import SinceCounter from "@/components/SinceCounter";
 
-const BURST_HEARTS = Array.from({ length: 12 }, (_, i) => {
-  const angle = (i / 12) * Math.PI * 2;
+const MESSAGE_MAX_LENGTH = 500;
+
+const BURST_HEARTS = Array.from({ length: 14 }, (_, i) => {
+  const angle = (i / 14) * Math.PI * 2;
   return {
-    tx: `${Math.cos(angle) * (64 + (i % 4) * 24)}px`,
-    ty: `${Math.sin(angle) * (64 + (i % 4) * 24)}px`,
+    tx: `${Math.cos(angle) * (70 + (i % 4) * 26)}px`,
+    ty: `${Math.sin(angle) * (70 + (i % 4) * 26)}px`,
     size: 12 + (i % 4) * 4,
   };
 });
@@ -24,18 +30,27 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle"
   );
+  const [message, setMessage] = useState("");
+  const [sentMessage, setSentMessage] = useState<string | null>(null);
   const [pressCount, setPressCount] = useState(0);
 
   const handlePress = async () => {
     if (status === "sending") return;
 
     setStatus("sending");
+    const note = message.trim();
 
     try {
-      const res = await fetch("/api/miss-you", { method: "POST" });
+      const res = await fetch("/api/miss-you", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message: note || null }),
+      });
       if (!res.ok) throw new Error("Request failed");
 
       setPressCount((count) => count + 1);
+      setSentMessage(note || null);
+      setMessage("");
       setStatus("sent");
     } catch {
       setStatus("error");
@@ -47,9 +62,10 @@ export default function Home() {
       <Background />
 
       <section className="relative z-10 mx-auto grid w-full max-w-6xl gap-5 lg:grid-cols-[0.92fr_1.08fr]">
-        <aside className="fade-up hidden min-h-[620px] border border-white/10 bg-[#141017]/80 p-8 shadow-2xl shadow-black/30 lg:flex lg:flex-col lg:justify-between">
+        {/* ---- left poetic panel (desktop only) ---- */}
+        <aside className="fade-up hidden min-h-[640px] rounded-3xl border border-white/10 bg-[#141017]/80 p-8 shadow-2xl shadow-black/30 lg:flex lg:flex-col lg:justify-between">
           <div>
-            <div className="mb-8 inline-flex items-center gap-2 border border-amber-200/25 bg-amber-200/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-amber-100/80">
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-amber-200/25 bg-amber-200/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-amber-100/80">
               <Stars size={15} />
               Since July 21, 2022
             </div>
@@ -59,43 +75,34 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="relative min-h-72 overflow-hidden border border-white/10 bg-[#1d1821] p-6">
-            <div className="absolute inset-x-8 top-12 h-px bg-gradient-to-r from-transparent via-amber-200/50 to-transparent" />
-            <div className="absolute bottom-8 left-8 right-8 h-px bg-gradient-to-r from-transparent via-cyan-200/35 to-transparent" />
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#1d1821] p-6">
+            <div className="divider-shimmer absolute inset-x-8 top-10" />
+            <div className="divider-shimmer absolute bottom-8 left-8 right-8 opacity-60" />
 
-            <div className="relative flex h-full flex-col justify-between">
+            <div className="relative flex flex-col gap-8">
               <div className="flex items-center justify-between text-xs uppercase tracking-[0.22em] text-stone-300/55">
                 <span>For Fats</span>
                 <span>Still here</span>
               </div>
 
-              <div className="mx-auto flex h-28 w-28 items-center justify-center border border-rose-200/30 bg-rose-200/10 shadow-[0_0_80px_rgba(244,114,182,0.2)]">
+              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-rose-200/30 bg-rose-200/10 shadow-[0_0_80px_rgba(244,114,182,0.22)]">
                 <Heart
-                  size={48}
+                  size={42}
                   className="heartbeat text-rose-300"
                   fill="currentColor"
                   strokeWidth={0}
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-3 text-center text-xs text-stone-300/60">
-                <span className="border border-white/10 bg-white/[0.03] px-2 py-3">
-                  First contact
-                </span>
-                <span className="border border-white/10 bg-white/[0.03] px-2 py-3">
-                  Still waiting
-                </span>
-                <span className="border border-white/10 bg-white/[0.03] px-2 py-3">
-                  One day
-                </span>
-              </div>
+              <SinceCounter />
             </div>
           </div>
         </aside>
 
-        <div className="glass fade-up relative overflow-hidden p-6 sm:p-10 lg:p-12">
-          <div className="mb-10 flex items-center justify-between gap-4">
-            <div className="inline-flex items-center gap-2 border border-rose-200/20 bg-rose-200/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-rose-100/80">
+        {/* ---- main card ---- */}
+        <div className="glass fade-up fade-up-delay-1 relative overflow-hidden rounded-3xl p-6 sm:p-10 lg:p-12">
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-rose-200/20 bg-rose-200/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-rose-100/80">
               <Sparkles size={15} />
               For Fats
             </div>
@@ -103,7 +110,7 @@ export default function Home() {
           </div>
 
           {status === "sent" ? (
-            <div className="relative flex min-h-[420px] flex-col items-center justify-center text-center">
+            <div className="relative flex min-h-[440px] flex-col items-center justify-center py-6 text-center">
               {BURST_HEARTS.map((heart, i) => (
                 <span
                   key={`${pressCount}-${i}`}
@@ -117,49 +124,86 @@ export default function Home() {
                 </span>
               ))}
 
-              <div className="mb-8 flex h-20 w-20 items-center justify-center border border-emerald-200/30 bg-emerald-200/10 text-emerald-200">
-                <CheckCircle2 size={38} />
+              <div className="mb-7 flex h-20 w-20 items-center justify-center rounded-full border border-emerald-200/30 bg-emerald-200/10 text-emerald-200">
+                <CheckCircle2 size={36} />
               </div>
 
-              <h1 className="font-display max-w-xl text-4xl font-semibold leading-tight text-stone-50 sm:text-6xl">
-                Message sent, hope we meet again.
+              <h1 className="font-display max-w-xl text-4xl font-semibold leading-tight text-stone-50 sm:text-5xl lg:text-6xl">
+                Sent. Hope we meet again.
               </h1>
 
-              <button
-                onClick={handlePress}
-                className="mt-10 inline-flex min-h-12 items-center justify-center gap-2 border border-rose-200/25 bg-white/[0.06] px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-rose-50 transition hover:border-rose-200/45 hover:bg-white/[0.1] active:scale-[0.98]"
-              >
-                <Send size={17} />
-                Send again
-              </button>
+              {sentMessage && (
+                <blockquote className="glass-soft mt-6 max-w-md rounded-2xl px-6 py-4 text-sm italic leading-7 text-rose-100/85 sm:text-base">
+                  &ldquo;{sentMessage}&rdquo;
+                </blockquote>
+              )}
+
+              <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
+                <button
+                  onClick={() => setStatus("idle")}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-rose-200/25 bg-white/[0.06] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-rose-50 transition hover:border-rose-200/45 hover:bg-white/[0.1] active:scale-[0.98]"
+                >
+                  <Send size={16} />
+                  Send another
+                </button>
+                <Link
+                  href="/responses"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-stone-300/75 transition hover:text-stone-100"
+                >
+                  <History size={16} />
+                  See every moment
+                </Link>
+              </div>
             </div>
           ) : (
-            <div className="grid min-h-[520px] content-between">
+            <div className="flex min-h-[520px] flex-col justify-between gap-8">
               <div>
-                <div className="mb-9 flex h-20 w-20 items-center justify-center border border-rose-200/30 bg-rose-200/10">
+                <div className="mb-8 flex h-18 w-18 items-center justify-center rounded-2xl border border-rose-200/30 bg-rose-200/10 p-4">
                   <Heart
-                    size={38}
+                    size={36}
                     className="heartbeat text-rose-300"
                     fill="currentColor"
                     strokeWidth={0}
                   />
                 </div>
 
-                <h1 className="font-display max-w-2xl text-5xl font-semibold leading-[1.02] text-stone-50 sm:text-7xl">
+                <h1 className="font-display max-w-2xl text-5xl font-semibold leading-[1.02] text-stone-50 sm:text-6xl lg:text-7xl">
                   I miss you.
                 </h1>
 
-                <p className="mt-7 max-w-2xl text-base leading-8 text-stone-200/72 sm:text-lg">
+                <p className="mt-6 max-w-2xl text-base leading-8 text-stone-200/72 sm:text-lg">
                   If you see this, it means you&apos;re checking what I made for
                   you. I really miss you. From our first contact on July 21,
                   2022, until now, I am still thinking about you. Still waiting
                   for you. One day Fats.
                 </p>
+
+                {/* counter is inside the aside on desktop; show it inline on smaller screens */}
+                <div className="mt-8 lg:hidden">
+                  <SinceCounter />
+                </div>
               </div>
 
-              <div className="mt-12">
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-stone-300/60">
+                  <PenLine size={14} />
+                  Leave a few words (optional)
+                </label>
+                <textarea
+                  value={message}
+                  onChange={(e) =>
+                    setMessage(e.target.value.slice(0, MESSAGE_MAX_LENGTH))
+                  }
+                  rows={3}
+                  placeholder="Anything you want to say back..."
+                  className="glass-soft w-full resize-none rounded-2xl px-4 py-3.5 text-sm leading-6 text-stone-100 outline-none transition placeholder:text-stone-400/45 focus:border-rose-300/40 focus:ring-2 focus:ring-rose-400/20 sm:text-base"
+                />
+                <p className="mt-1.5 text-right text-xs tabular-nums text-stone-400/50">
+                  {message.length}/{MESSAGE_MAX_LENGTH}
+                </p>
+
                 {status === "error" && (
-                  <p className="mb-4 border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm text-red-100">
+                  <p className="mb-4 mt-2 rounded-xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm text-red-100">
                     Message could not be sent. Please try again.
                   </p>
                 )}
@@ -167,7 +211,7 @@ export default function Home() {
                 <button
                   onClick={handlePress}
                   disabled={status === "sending"}
-                  className="group inline-flex min-h-14 w-full items-center justify-center gap-3 border border-rose-200/20 bg-rose-500 px-7 py-4 text-base font-semibold uppercase tracking-[0.16em] text-white shadow-lg shadow-rose-950/35 transition hover:bg-rose-400 active:scale-[0.98] disabled:opacity-70 sm:w-auto"
+                  className="btn-love group mt-3 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full px-8 py-4 text-base font-semibold uppercase tracking-[0.16em] text-white disabled:opacity-70 sm:w-auto"
                 >
                   {status === "sending" ? (
                     <Loader2 size={20} className="animate-spin" />

@@ -11,6 +11,7 @@ model MissYouResponse {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   device    String?
   userAgent String?  @map("user_agent")
+  message   String?
 
   @@map("miss_you_responses")
 }

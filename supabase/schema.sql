@@ -5,8 +5,13 @@ create table if not exists public.miss_you_responses (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   device text,
-  user_agent text
+  user_agent text,
+  message text
 );
+
+-- Safe to re-run on an existing table.
+alter table public.miss_you_responses
+  add column if not exists message text;
 
 create index if not exists miss_you_responses_created_at_idx
   on public.miss_you_responses (created_at desc);

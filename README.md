@@ -2,18 +2,21 @@
 
 A small Next.js app with a NestJS API, Prisma ORM, and Supabase Postgres storage.
 
-- `/` is the page for her. Pressing **I miss you too** saves the response and shows only: `Message sent, hope we meet again.`
-- `/responses` is the private response dashboard.
+- `/` is the page for her. Pressing **I miss you too** saves the response (with an optional note she can write) and shows: `Sent. Hope we meet again.`
+- `/responses` is the private response dashboard: stats plus a day-by-day timeline of every press and note.
 - `server/miss-you/miss-you.controller.ts` is the NestJS controller for sending and listing responses.
 - `prisma/schema.prisma` maps Prisma to the Supabase `miss_you_responses` table.
 
-## 1. Create The Supabase Table
+## 1. Create The Supabase Project + Table
 
-In Supabase, open SQL Editor, paste `supabase/schema.sql`, and run it.
+1. Create a project at [supabase.com](https://supabase.com) (free tier is fine).
+2. Open **SQL Editor**, paste the contents of `supabase/schema.sql`, and run it.
+   (Alternatively, after step 2 below, run `npx prisma db push`.)
 
 ## 2. Configure Environment
 
-Copy `.env.example` to `.env.local` and fill in:
+Edit `.env` and replace the `DATABASE_URL` placeholder with the real connection
+string from **Supabase → Project Settings → Database → Connection string**:
 
 ```bash
 DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres?sslmode=require"
@@ -22,7 +25,11 @@ WEB_ORIGIN=http://localhost:3000
 PORT=4000
 ```
 
-For the optional Next/Supabase fallback, also set:
+`[password]` and `[project-ref]` must be replaced with your project's values —
+the app cannot send anything until this is real.
+
+For the optional Next/Supabase fallback (used if the Nest API is unreachable),
+also set:
 
 ```bash
 SUPABASE_URL=https://your-project.supabase.co
@@ -31,19 +38,14 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ## 3. Run Locally
 
-Run the Nest API:
-
-```bash
-npm run api:dev
-```
-
-Run the Next frontend in another terminal:
+One command runs both the Next frontend and the Nest API:
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. (To run them separately: `npm run dev:web` and
+`npm run api:dev`.)
 
 ## Hosting Notes
 
