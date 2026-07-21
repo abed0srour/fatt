@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Headers,
+  Inject,
   Post,
 } from "@nestjs/common";
 import { MissYouService } from "./miss-you.service";
@@ -12,7 +13,10 @@ const MESSAGE_MAX_LENGTH = 500;
 
 @Controller("miss-you")
 export class MissYouController {
-  constructor(private readonly missYouService: MissYouService) {}
+  // Explicit token: tsx/esbuild cannot emit design:paramtypes metadata.
+  constructor(
+    @Inject(MissYouService) private readonly missYouService: MissYouService
+  ) {}
 
   @Post()
   async sendMissYouToo(

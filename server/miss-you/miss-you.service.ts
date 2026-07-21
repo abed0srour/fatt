@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 
 interface ResponseRecord {
@@ -26,7 +26,10 @@ function serialize(row: ResponseRecord) {
 
 @Injectable()
 export class MissYouService {
-  constructor(private readonly prisma: PrismaService) {}
+  // Explicit token: tsx/esbuild cannot emit design:paramtypes metadata.
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService
+  ) {}
 
   async create(userAgent: string, message?: string) {
     const row = await this.prisma.missYouResponse.create({

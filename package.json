@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n web,api -c magenta,cyan \"next dev\" \"tsx watch server/main.ts\"",
+    "dev": "concurrently -n web,api -c magenta,cyan \"next dev\" \"tsx watch --tsconfig tsconfig.server.json server/main.ts\"",
     "dev:web": "next dev",
-    "api:dev": "tsx watch server/main.ts",
+    "api:dev": "tsx watch --tsconfig tsconfig.server.json server/main.ts",
     "api:build": "prisma generate && tsc -p tsconfig.server.json",
     "api:start": "node dist/server/main.js",
     "build:all": "npm run api:build && npm run build",
