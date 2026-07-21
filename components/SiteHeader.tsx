@@ -1,17 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Heart, Sparkles } from "lucide-react";
-
-const LINKS = [
-  { href: "/", label: "For her" },
-  { href: "/responses", label: "Every moment" },
-];
+import { Heart, Stars } from "lucide-react";
 
 export default function SiteHeader() {
-  const pathname = usePathname();
-
   return (
     <header className="sticky top-0 z-20 border-b border-white/[0.07] bg-[#0f0d13]/70 backdrop-blur-xl">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 lg:px-8">
@@ -27,30 +17,13 @@ export default function SiteHeader() {
               strokeWidth={0}
             />
           </span>
-          <span className="font-display text-base sm:text-lg">
-            For Fats
-          </span>
-          <Sparkles size={13} className="text-amber-200/60" />
+          <span className="font-display text-base sm:text-lg">For Fats</span>
         </Link>
 
-        <nav className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
-          {LINKS.map((link) => {
-            const active = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition sm:px-4 sm:text-sm ${
-                  active
-                    ? "bg-rose-500/90 text-white shadow-lg shadow-rose-950/40"
-                    : "text-stone-300/80 hover:bg-white/[0.07] hover:text-stone-100"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <span className="inline-flex items-center gap-2 rounded-full border border-amber-200/20 bg-amber-200/[0.07] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100/70 sm:text-xs">
+          <Stars size={13} />
+          Since July 21, 2022
+        </span>
       </div>
     </header>
   );

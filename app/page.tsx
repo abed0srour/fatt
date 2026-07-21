@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
-  CheckCircle2,
   Heart,
-  History,
   Loader2,
   PenLine,
   Send,
@@ -67,7 +64,7 @@ export default function Home() {
           <div>
             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-amber-200/25 bg-amber-200/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-amber-100/80">
               <Stars size={15} />
-              Since July 21, 2022
+              Still waiting
             </div>
 
             <h2 className="font-display max-w-sm text-5xl font-semibold leading-[1.05] text-stone-50">
@@ -104,7 +101,7 @@ export default function Home() {
           <div className="mb-8 flex items-center justify-between gap-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-rose-200/20 bg-rose-200/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-rose-100/80">
               <Sparkles size={15} />
-              For Fats
+              Made for you
             </div>
             <div className="hidden h-px flex-1 bg-gradient-to-r from-rose-200/30 via-white/10 to-transparent sm:block" />
           </div>
@@ -124,9 +121,25 @@ export default function Home() {
                 </span>
               ))}
 
-              <div className="mb-7 flex h-20 w-20 items-center justify-center rounded-full border border-emerald-200/30 bg-emerald-200/10 text-emerald-200">
-                <CheckCircle2 size={36} />
+              <div className="pop-in relative mb-8 flex h-24 w-24 items-center justify-center">
+                <span className="ring-pulse absolute inset-0 rounded-full border border-rose-300/40" />
+                <span
+                  className="ring-pulse absolute inset-0 rounded-full border border-rose-300/30"
+                  style={{ animationDelay: "0.6s" }}
+                />
+                <span className="absolute inset-0 rounded-full bg-gradient-to-br from-rose-400 via-rose-500 to-rose-700 shadow-[0_18px_60px_-12px_rgba(244,63,107,0.65)]" />
+                <span className="absolute inset-0 rounded-full ring-1 ring-inset ring-white/25" />
+                <Heart
+                  size={40}
+                  className="heartbeat relative text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
+                  fill="currentColor"
+                  strokeWidth={0}
+                />
               </div>
+
+              <p className="pop-in mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-rose-200/70">
+                Delivered with love
+              </p>
 
               <h1 className="font-display max-w-xl text-4xl font-semibold leading-tight text-stone-50 sm:text-5xl lg:text-6xl">
                 Sent. Hope we meet again.
@@ -138,22 +151,13 @@ export default function Home() {
                 </blockquote>
               )}
 
-              <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
-                <button
-                  onClick={() => setStatus("idle")}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-rose-200/25 bg-white/[0.06] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-rose-50 transition hover:border-rose-200/45 hover:bg-white/[0.1] active:scale-[0.98]"
-                >
-                  <Send size={16} />
-                  Send another
-                </button>
-                <Link
-                  href="/responses"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-stone-300/75 transition hover:text-stone-100"
-                >
-                  <History size={16} />
-                  See every moment
-                </Link>
-              </div>
+              <button
+                onClick={() => setStatus("idle")}
+                className="mt-9 inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-rose-200/25 bg-white/[0.06] px-7 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-rose-50 transition hover:border-rose-200/45 hover:bg-white/[0.1] active:scale-[0.98]"
+              >
+                <Send size={16} />
+                Send another
+              </button>
             </div>
           ) : (
             <div className="flex min-h-[520px] flex-col justify-between gap-8">
